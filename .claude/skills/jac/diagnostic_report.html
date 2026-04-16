@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JAC MEGA Test — Diagnostic Report</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #1a1a2e; padding: 24px; }
+  h1 { font-size: 1.6rem; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+  .subtitle { color: #6b7280; font-size: 0.9rem; margin-bottom: 24px; }
+
+  /* Metric cards */
+  .cards { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
+  .card { flex: 1; min-width: 140px; background: #fff; border-radius: 12px; padding: 18px 20px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.07); border-left: 5px solid #6366f1; }
+  .card.green { border-left-color: #22c55e; }
+  .card.red   { border-left-color: #ef4444; }
+  .card.amber { border-left-color: #f59e0b; }
+  .card.blue  { border-left-color: #3b82f6; }
+  .card-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: #6b7280; margin-bottom: 6px; }
+  .card-value { font-size: 1.9rem; font-weight: 800; color: #1a1a2e; line-height: 1; }
+  .card-sub   { font-size: 0.78rem; color: #6b7280; margin-top: 4px; }
+
+  /* Section headers */
+  h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 14px; color: #1a1a2e; border-left: 4px solid #6366f1; padding-left: 10px; }
+
+  /* Topic table */
+  .topic-table { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); overflow: hidden; margin-bottom: 28px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #1a1a2e; color: #fff; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 12px 16px; text-align: left; }
+  td { padding: 11px 16px; font-size: 0.88rem; border-bottom: 1px solid #f1f5f9; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f8fafc; }
+
+  .bar-wrap { background: #e5e7eb; border-radius: 99px; height: 10px; width: 150px; overflow: hidden; }
+  .bar-fill  { height: 100%; border-radius: 99px; }
+  .bar-red   { background: #ef4444; }
+  .bar-amber { background: #f59e0b; }
+  .bar-green { background: #22c55e; }
+
+  .badge { display: inline-block; border-radius: 99px; font-size: 0.7rem; font-weight: 700;
+           padding: 2px 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .badge-red   { background: #fee2e2; color: #b91c1c; }
+  .badge-amber { background: #fef3c7; color: #92400e; }
+  .badge-green { background: #dcfce7; color: #15803d; }
+
+  /* Q grid */
+  .q-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+  .q-cell { border-radius: 8px; padding: 6px 8px; font-size: 0.72rem; font-weight: 700; text-align: center;
+            min-width: 52px; flex: 0 0 auto; }
+  .q-correct { background: #dcfce7; color: #15803d; border: 1.5px solid #86efac; }
+  .q-wrong   { background: #fee2e2; color: #b91c1c; border: 1.5px solid #fca5a5; }
+  .q-num     { font-size: 0.85rem; display: block; }
+  .q-topic   { font-size: 0.62rem; color: inherit; opacity: 0.75; display: block; margin-top: 1px; }
+
+  /* Action cards */
+  .actions { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 28px; }
+  .action-card { flex: 1; min-width: 240px; background: #fff; border-radius: 12px; padding: 18px 20px;
+                 box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+  .action-card.priority { border-top: 4px solid #ef4444; }
+  .action-card.improve  { border-top: 4px solid #f59e0b; }
+  .action-rank { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700;
+                 margin-bottom: 6px; }
+  .priority .action-rank { color: #ef4444; }
+  .improve  .action-rank { color: #f59e0b; }
+  .action-title { font-size: 1rem; font-weight: 700; margin-bottom: 8px; color: #1a1a2e; }
+  .action-qs    { font-size: 0.78rem; color: #6b7280; margin-bottom: 8px; }
+  .action-body  { font-size: 0.82rem; color: #374151; line-height: 1.55; }
+  .action-do    { margin-top: 10px; background: #f8fafc; border-radius: 8px; padding: 8px 12px;
+                  font-size: 0.8rem; color: #1a1a2e; }
+  .action-do strong { color: #6366f1; }
+
+  /* Milestone */
+  .milestones { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 10px; }
+  .ms-card { flex: 1; min-width: 180px; background: #fff; border-radius: 12px; padding: 16px 18px;
+             box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+  .ms-num  { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #6366f1; margin-bottom: 4px; }
+  .ms-target { font-size: 1.3rem; font-weight: 800; color: #1a1a2e; }
+  .ms-weeks  { font-size: 0.75rem; color: #6b7280; margin: 2px 0 8px; }
+  .ms-focus  { font-size: 0.8rem; color: #374151; line-height: 1.4; }
+</style>
+</head>
+<body>
+
+<h1>Diagnostic Report — James An College MEGA Test</h1>
+<p class="subtitle">Student: Grade 5 &nbsp;|&nbsp; Subject: General Ability &nbsp;|&nbsp; Date: 16 Apr 2026</p>
+
+<!-- METRIC CARDS -->
+<div class="cards">
+  <div class="card blue">
+    <div class="card-label">Total Score</div>
+    <div class="card-value">17/30</div>
+    <div class="card-sub">56.67%</div>
+  </div>
+  <div class="card red">
+    <div class="card-label">Wrong Answers</div>
+    <div class="card-value">13</div>
+    <div class="card-sub">Qs: 4,5,6,7,11,15,16,21,23,24,27,28,30</div>
+  </div>
+  <div class="card red">
+    <div class="card-label">Weakest Topic</div>
+    <div class="card-value">4 topics</div>
+    <div class="card-sub">at 0% — Synonyms, Analogies, Idioms, Palindromes</div>
+  </div>
+  <div class="card green">
+    <div class="card-label">Strongest Topics</div>
+    <div class="card-value">100%</div>
+    <div class="card-sub">Maths, Antonyms, Prefixes, Suffixes, Geography</div>
+  </div>
+</div>
+
+<!-- TOPIC TABLE -->
+<h2>Topic Performance</h2>
+<div class="topic-table">
+<table>
+  <thead>
+    <tr><th>Topic</th><th>Score</th><th>%</th><th>Progress</th><th>Priority</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Synonyms</strong></td><td>0 / 2</td><td>0%</td>
+      <td><div class="bar-wrap"><div class="bar-fill bar-red" style="width:0%"></div></div></td>
+      <td><span class="badge badge-red">Priority</span></td>
+    </tr>
+    <tr>
+      <td><strong>Analogies</strong></td><td>0 / 1</td><td>0%</td>
+      <td><div class="bar-wrap"><div class="bar-fill bar-red" style="width:0%"></div></div></td>
+      <td><span class="badge badge-red">Priority</span></td>
+    </tr>
+    <tr>
+      <td><strong>Idioms</strong></td><td>0 / 1</td><td>0%</td>
+      <td><div class="bar-wrap"><div class="bar-fill bar-red" style="width:0%"></div></div></td>
+      <td><span class="badge badge-red">Priority</span></td>
+    </tr>
+    <tr>
+      <td><strong>Palindromes</strong></td><td>0 / 2</td><td>0%</td>
+      <td><div class="bar-wrap"><div class="bar-fill bar-red" style="width:0%"></div></div></td>
+      <td><span class="badge badge-red">Priority</span></td>
+    </tr>
+    <tr>
+      <td><strong>Science Vocab</strong></td><td>3 / 8</td><td>37.5%</td>
+      <td><div class="bar-wrap"><div class="bar-fill bar-red" style="width:37.5%"></div></div></td>
+      <td><span class="badge badge-red">Priority</span></td>
+    </tr>
+    <tr>
+      <td><strong>Colloquialisms</strong></td><td>1 / 2</td><td>50%</td>
+      <td><div class="bar-wrap"><div class="bar-fill bar-amber" style="width:50%"></div></div></td>
+      <td><span class="badge badge-amber">Improve</span></td>
+    </tr>
+    <tr>
+      <td><strong>Humanities</strong></td><td>4 / 5</td><td>80%</td>
+      <td><div class="bar-wrap"><div class="bar-fill bar-green" style="width:80%"></div></div></td>
+      <td><span class="badge badge-green">Good</span></td>
+    </tr>
+    <tr>
+      <td><strong>Mathematics</strong></td><td>3 / 3</td><td>100%</td>
+      <td><div class="bar-wrap"><div class="bar-fill bar-green" style="width:100%"></div></div></td>
+      <td><span class="badge badge-green">Good</span></td>
+    </tr>
+    <tr>
+      <td><strong>Antonyms</strong></td><td>1 / 1</td><td>100%</td>
+      <td><div class="bar-wrap"><div class="bar-fill bar-green" style="width:100%"></div></div></td>
+      <td><span class="badge badge-green">Good</span></td>
+    </tr>
+    <tr>
+      <td><strong>Definitions</strong></td><td>1 / 1</td><td>100%</td>
+      <td><div class="bar-wrap"><div class="bar-fill bar-green" style="width:100%"></div></div></td>
+      <td><span class="badge badge-green">Good</span></td>
+    </tr>
+    <tr>
+      <td><strong>Suffixes</strong></td><td>1 / 1</td><td>100%</td>
+      <td><div class="bar-wrap"><div class="bar-fill bar-green" style="width:100%"></div></div></td>
+      <td><span class="badge badge-green">Good</span></td>
+    </tr>
+    <tr>
+      <td><strong>Prefixes</strong></td><td>1 / 1</td><td>100%</td>
+      <td><div class="bar-wrap"><div class="bar-fill bar-green" style="width:100%"></div></div></td>
+      <td><span class="badge badge-green">Good</span></td>
+    </tr>
+    <tr>
+      <td><strong>Geography</strong></td><td>1 / 1</td><td>100%</td>
+      <td><div class="bar-wrap"><div class="bar-fill bar-green" style="width:100%"></div></div></td>
+      <td><span class="badge badge-green">Good</span></td>
+    </tr>
+    <tr>
+      <td><strong>Superlatives</strong></td><td>1 / 1</td><td>100%</td>
+      <td><div class="bar-wrap"><div class="bar-fill bar-green" style="width:100%"></div></div></td>
+      <td><span class="badge badge-green">Good</span></td>
+    </tr>
+    <tr>
+      <td><strong>Colloquialisms</strong></td><td>1 / 1</td><td>100% (Q10)</td>
+      <td><div class="bar-wrap"><div class="bar-fill bar-green" style="width:100%"></div></div></td>
+      <td><span class="badge badge-amber">Mixed</span></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<!-- Q GRID -->
+<h2>Question-by-Question</h2>
+<div class="q-grid">
+  <div class="q-cell q-correct"><span class="q-num">Q1 ✓</span><span class="q-topic">Antonyms</span></div>
+  <div class="q-cell q-correct"><span class="q-num">Q2 ✓</span><span class="q-topic">Definitions</span></div>
+  <div class="q-cell q-correct"><span class="q-num">Q3 ✓</span><span class="q-topic">Science</span></div>
+  <div class="q-cell q-wrong"><span class="q-num">Q4 ✗</span><span class="q-topic">Synonym</span></div>
+  <div class="q-cell q-wrong"><span class="q-num">Q5 ✗</span><span class="q-topic">Analogies</span></div>
+  <div class="q-cell q-wrong"><span class="q-num">Q6 ✗</span><span class="q-topic">Science</span></div>
+  <div class="q-cell q-wrong"><span class="q-num">Q7 ✗</span><span class="q-topic">Science</span></div>
+  <div class="q-cell q-correct"><span class="q-num">Q8 ✓</span><span class="q-topic">Maths</span></div>
+  <div class="q-cell q-correct"><span class="q-num">Q9 ✓</span><span class="q-topic">Humanities</span></div>
+  <div class="q-cell q-correct"><span class="q-num">Q10 ✓</span><span class="q-topic">Colloq.</span></div>
+  <div class="q-cell q-wrong"><span class="q-num">Q11 ✗</span><span class="q-topic">Idioms</span></div>
+  <div class="q-cell q-correct"><span class="q-num">Q12 ✓</span><span class="q-topic">Humanities</span></div>
+  <div class="q-cell q-correct"><span class="q-num">Q13 ✓</span><span class="q-topic">Science</span></div>
+  <div class="q-cell q-correct"><span class="q-num">Q14 ✓</span><span class="q-topic">Science</span></div>
+  <div class="q-cell q-wrong"><span class="q-num">Q15 ✗</span><span class="q-topic">Science</span></div>
+  <div class="q-cell q-wrong"><span class="q-num">Q16 ✗</span><span class="q-topic">Humanities</span></div>
+  <div class="q-cell q-correct"><span class="q-num">Q17 ✓</span><span class="q-topic">Humanities</span></div>
+  <div class="q-cell q-correct"><span class="q-num">Q18 ✓</span><span class="q-topic">Suffixes</span></div>
+  <div class="q-cell q-correct"><span class="q-num">Q19 ✓</span><span class="q-topic">Humanities</span></div>
+  <div class="q-cell q-correct"><span class="q-num">Q20 ✓</span><span class="q-topic">Prefixes</span></div>
+  <div class="q-cell q-wrong"><span class="q-num">Q21 ✗</span><span class="q-topic">Colloq.</span></div>
+  <div class="q-cell q-correct"><span class="q-num">Q22 ✓</span><span class="q-topic">Geography</span></div>
+  <div class="q-cell q-wrong"><span class="q-num">Q23 ✗</span><span class="q-topic">Palindromes</span></div>
+  <div class="q-cell q-wrong"><span class="q-num">Q24 ✗</span><span class="q-topic">Palindromes</span></div>
+  <div class="q-cell q-correct"><span class="q-num">Q25 ✓</span><span class="q-topic">Superlatives</span></div>
+  <div class="q-cell q-correct"><span class="q-num">Q26 ✓</span><span class="q-topic">Maths</span></div>
+  <div class="q-cell q-wrong"><span class="q-num">Q27 ✗</span><span class="q-topic">Synonym</span></div>
+  <div class="q-cell q-wrong"><span class="q-num">Q28 ✗</span><span class="q-topic">Science</span></div>
+  <div class="q-cell q-correct"><span class="q-num">Q29 ✓</span><span class="q-topic">Maths</span></div>
+  <div class="q-cell q-wrong"><span class="q-num">Q30 ✗</span><span class="q-topic">Science</span></div>
+</div>
+
+<!-- PRIORITY ACTION PLAN -->
+<h2>Priority Action Plan</h2>
+<div class="actions">
+
+  <div class="action-card priority">
+    <div class="action-rank">Action 1 — Highest Priority</div>
+    <div class="action-title">Science Vocabulary (5 wrong)</div>
+    <div class="action-qs">Wrong: Q6 (90% cohort correct), Q7 (70%), Q15 (86%), Q28 (53%), Q30 (87%)</div>
+    <div class="action-body">
+      Q6, Q15, and Q30 were missed even though 86–90% of the cohort got them right — these are "should-know" questions, not hard ones. The student likely knows the topic loosely but is tripped up by similar-sounding science terms (e.g. photosynthesis vs. respiration, vertebrate vs. invertebrate).
+    </div>
+    <div class="action-do"><strong>Do today:</strong> Make 20 flashcards for Year 5 science terms. Learn 5 new cards each day + review yesterday's. Focus: biology terms (living systems), earth science vocabulary.</div>
+  </div>
+
+  <div class="action-card priority">
+    <div class="action-rank">Action 2 — High Priority</div>
+    <div class="action-title">Synonyms (0/2) &amp; Analogies (0/1)</div>
+    <div class="action-qs">Wrong: Q4 (Synonym, 49% cohort), Q5 (Analogies, 28%), Q27 (Synonym, 52%)</div>
+    <div class="action-body">
+      Q5 Analogies was the hardest question in the test (only 28% of students correct) — missing it is expected. But Q4 and Q27 are mid-difficulty synonyms that most students get wrong too. The weakness here is vocabulary breadth: not knowing enough word pairs to make quick synonym judgements under timed pressure.
+    </div>
+    <div class="action-do"><strong>Do today:</strong> Write 10 synonym pairs + 5 analogy pairs each morning before school. Use a Year 5–6 word list. Focus on "X is to Y as ___ is to ___" format for analogies.</div>
+  </div>
+
+  <div class="action-card priority">
+    <div class="action-rank">Action 3 — High Priority</div>
+    <div class="action-title">Palindromes (0/2)</div>
+    <div class="action-qs">Wrong: Q23 (51% cohort), Q24 (82% cohort got right)</div>
+    <div class="action-body">
+      Q24 was missed by only 18% of students — this is a well-understood concept for most Year 5 students. A palindrome reads the same forwards and backwards (e.g. "racecar", "level", "noon"). The student may not have memorised the rule firmly or be confusing palindromes with anagrams. This is a fast fix.
+    </div>
+    <div class="action-do"><strong>Do today:</strong> Memorise the definition: "A palindrome reads the same forwards AND backwards." Learn 15 common palindrome words. Practice spotting them in a list.</div>
+  </div>
+
+  <div class="action-card improve">
+    <div class="action-rank">Action 4 — Improve</div>
+    <div class="action-title">Idioms &amp; Colloquialisms</div>
+    <div class="action-qs">Wrong: Q11 (Idioms, 77%), Q21 (Colloquialisms, 52%)</div>
+    <div class="action-body">
+      Q11 was an idiom that 77% of students got right — a well-known expression the student didn't recognise. Australian and British idioms (e.g. "barking up the wrong tree", "kick the bucket") appear regularly in JAC tests and are best learnt through exposure and repetition rather than rules.
+    </div>
+    <div class="action-do"><strong>Do today:</strong> Learn 5 new Australian/British idioms each week. Write each in a sentence. Keep an "idiom journal." Include colloquialisms like "fortnight", "arvo", "reckon".</div>
+  </div>
+
+</div>
+
+<!-- MILESTONE PLAN -->
+<h2>16-Week Improvement Milestones</h2>
+<div class="milestones">
+  <div class="ms-card">
+    <div class="ms-num">Milestone 1</div>
+    <div class="ms-target">~66%</div>
+    <div class="ms-weeks">Weeks 1–4</div>
+    <div class="ms-focus">Understand each weak question type. Untimed practice. Build vocabulary lists and flashcard habits.</div>
+  </div>
+  <div class="ms-card">
+    <div class="ms-num">Milestone 2</div>
+    <div class="ms-target">~76%</div>
+    <div class="ms-weeks">Weeks 5–10</div>
+    <div class="ms-focus">Speed + accuracy under time pressure. Keep an error journal. Timed sessions of 15 questions in 20 minutes.</div>
+  </div>
+  <div class="ms-card">
+    <div class="ms-num">Milestone 3</div>
+    <div class="ms-target">85%+</div>
+    <div class="ms-weeks">Weeks 11–16</div>
+    <div class="ms-focus">Full timed practice tests. Exam simulation conditions. Consistency across all topic types.</div>
+  </div>
+</div>
+
+</body>
+</html>
